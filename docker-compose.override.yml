@@ -1,0 +1,9 @@
+services:
+  heuberg_backend:
+    volumes:
+      - ./Heuberg.Backend:/app
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=heuberg_postgres;Port=5432;Database=heuberg;Username=postgres;Password=heubergpass
+    command: >
+      sh -c "dotnet watch run"

@@ -1,0 +1,51 @@
+services:
+  heuberg_postgres:
+    image: postgres:latest
+    container_name: heuberg_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: heuberg
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: heubergpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - heuberg_net
+
+  heuberg_backend:
+    build:
+      context: .
+      dockerfile: Heuberg.Backend/Dockerfile
+    image: heubergbackend:dev
+    container_name: Heuberg_Backend
+    depends_on:
+      - heuberg_postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - heuberg_net
+
+  heuberg_frontend:
+    build:
+      context: .
+      dockerfile: Heuberg.Frontend/Dockerfile  # Korrigierter Pfad
+    image: heubergfrontend:dev
+    container_name: Heuberg_Frontend
+    ports:
+      - "8484:8080" # 8080 des Containers wird auf 8484 des Hosts abgebildet
+    environment:
+      - Api__BaseUrl=http://Heuberg_Backend:8080
+    depends_on:
+      - heuberg_backend
+    networks:
+      - heuberg_net
+
+volumes:
+  pgdata:
+
+networks:
+  heuberg_net:
+    driver: bridge
